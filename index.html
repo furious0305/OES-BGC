@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>OES BGC</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Office of Ethical Standards — Background Check</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Palette from logo */
+    :root{
+      --bg-dark: #1E1E1E;
+      --primary-teal: #2A7B7B;
+      --accent: #5AC2B0;
+      --ring: #161616;
+      --muted: #CFCFCF;
+      --card: #232626;
+      --white: #FFFFFF;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);background:linear-gradient(180deg,var(--bg-dark),#121212 120%);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #1e1e1e; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #2a7b7b, #5ac2b0);
+      border-radius: 6px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #5ac2b0, #7fe3d0);
+    }
+    * { scrollbar-width: thin; scrollbar-color: #2a7b7b #1e1e1e; }
+
+    /* Layout and components */
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:36px 18px;
+    }
+
+    .card{
+      width:100%;
+      max-width:980px;
+      background:linear-gradient(180deg, rgba(42,123,123,0.04), rgba(0,0,0,0.12));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,0.03);
+      overflow:hidden;
+    }
+
+    .card-header{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      padding:22px 26px;
+      background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.24));
+      border-bottom:1px solid rgba(255,255,255,0.03);
+    }
+    #logo{
+      width:120px;
+      height:120px;
+      border-radius:12px;
+      object-fit:contain;
+      background:transparent;
+      padding:8px;
+      display:block;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .title h1{
+      margin:0;
+      color:var(--white);
+      font-size:18px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      font-weight:700;
+    }
+    .title p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      opacity:0.9;
+    }
+
+    .card-body{
+      padding:22px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:18px;
+    }
+
+    .search-area{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .search-box{
+      display:flex;
+      width:100%;
+      max-width:740px;
+      gap:12px;
+    }
+
+    .search-box input{
+      flex:1;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));
+      border:1px solid rgba(255,255,255,0.04);
+      padding:14px 16px;
+      border-radius:10px;
+      color:var(--white);
+      font-size:15px;
+      outline:none;
+    }
+    .search-box input::placeholder{color:rgba(255,255,255,0.45);}
+    .btn{
+      background:linear-gradient(180deg, var(--primary-teal), var(--accent));
+      border:none;
+      color:var(--white);
+      padding:12px 16px;
+      font-weight:700;
+      border-radius:10px;
+      cursor:pointer;
+      min-width:110px;
+      box-shadow:0 8px 22px rgba(42,123,123,0.16);
+      transition:transform .08s ease;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .status-line{text-align:center;font-size:13px;color:rgba(255,255,255,0.7);margin-top:2px;}
+
+    .results{
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    .profile-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+      padding:16px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      min-height:260px;
+    }
+
+    .avatar{
+      width:150px;
+      height:150px;
+      border-radius:12px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(90,194,176,0.06), rgba(42,123,123,0.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:6px solid rgba(0,0,0,0.18);
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .profile-card h3{ margin:0; color:var(--white); font-size:18px; }
+    .profile-meta{ color:var(--muted); font-size:13px; }
+
+    .details{
+      background:linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.08));
+      border-radius:12px;
+      padding:14px;
+      border:1px solid rgba(255,255,255,0.02);
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      background:linear-gradient(180deg, rgba(42,123,123,0.02), rgba(0,0,0,0.02));
+      border-radius:10px;
+      margin-bottom:10px;
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .row .label{ color:var(--muted); font-size:13px; }
+    .row .value{ color:var(--white); font-weight:600; font-size:14px; }
+
+    .panels{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:6px;
+    }
+
+    .panel{
+      padding:10px;
+      border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));
+      border:1px solid rgba(255,255,255,0.02);
+      min-height:120px;
+    }
+    .panel h4{ margin:0 0 8px 0; color:var(--primary-teal); font-size:13px; }
+    .panel ul{ list-style:none; padding:0; margin:0; color:var(--muted); font-size:13px; max-height:180px; overflow:auto; }
+    .panel li{ padding:6px 8px; border-radius:8px; background:rgba(90,194,176,0.03); margin-bottom:6px; }
+
+    footer{text-align:center;color:rgba(255,255,255,0.28);font-size:12px;padding:12px 0 18px 0;}
+
+    @media (max-width:880px){
+      .results{ grid-template-columns: 1fr; }
+      .profile-card{ flex-direction:row; gap:12px; align-items:flex-start; min-height:100px; }
+      .avatar{ width:96px; height:96px; }
+      .search-box{ flex-direction:column; }
+      .btn{ width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="pageTitle">
+      <header class="card-header">
+        <img id="logo" src="https://cdn.discordapp.com/attachments/1383042075645448204/1397093776341864498/State_Internal_Management_3.png?ex=690ce039&is=690b8eb9&hm=db1b669fa3b41b5f1e6579986b0e4b2a14456643b42ca847c407d026343e6468" alt="Office of Ethical Standards logo">
+        <div class="title">
+          <h1 id="pageTitle">Office of Ethical Standards</h1>
+          <p>State Internal Management — Background Check Portal</p>
+        </div>
+      </header>
+
+      <section class="card-body">
+        <div class="search-area">
+          <div class="search-box">
+            <input id="usernameInput" type="text" placeholder="Enter Roblox username (e.g. matias2322)">
+            <button id="searchBtn" class="btn">Search</button>
+          </div>
+        </div>
+
+        <div id="status" class="status-line">Enter a username and press Search.</div>
+
+        <div id="resultsWrapper" hidden>
+          <div class="results">
+            <aside class="profile-card">
+              <div class="avatar"><img id="avatarImg" alt="Profile headshot"></div>
+              <div style="text-align:center;">
+                <h3 id="displayName">—</h3>
+                <div class="profile-meta" id="displayId">ID: —</div>
+                <div class="profile-meta" id="displayCreated">Joined: —</div>
+                <div style="margin-top:10px;">
+                  <a id="profileLink" href="#" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-size:13px;">Open Roblox profile ↗</a>
+                </div>
+              </div>
+            </aside>
+
+            <div class="details">
+              <div class="row">
+                <div class="label">Primary Group / Rank</div>
+                <div class="value" id="primaryGroup">—</div>
+              </div>
+
+              <div class="row">
+                <div class="label">Exact Join Date</div>
+                <div class="value" id="createdExact" title="">—</div>
+              </div>
+
+              <div class="panels">
+                <div class="panel" id="divisionPanel">
+                  <h4>Division Groups</h4>
+                  <ul id="divisionList"><li>Not in division groups</li></ul>
+                </div>
+
+                <div class="panel" id="alliedPanel">
+                  <h4>Allied Groups</h4>
+                  <ul id="alliedList"><li>Not in allied groups</li></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>Official Verification Portal — State Internal Management</footer>
+    </div>
+  </div>
+
+  <script>
+    const CORS_PROXY = "https://corsproxy.io/?";
+    const PRIMARY_GROUP_ID = 3054949;
+    const DIVISION_GROUPS = {
+      "United States Navy [USA]": 3142019,
+      "United States Space Force [USAF]": 9981334,
+      "United States Special Operations Command [USA]": 4807176,
+      "National Security Agency [USAF]": 15881648,
+      "United States Army[USAF]": 4676186,
+      "United States Military Police [USAF]": 10099205,
+      "United States Air Force 〔USAF〕": 4384609,
+      "United States Marine Corps [USAF]": 3979098,
+      "United States Military Education [USA]": 3652484,
+      "Materiel Command [USA]": 4449469,
+      "Officers Ascension Course [OAC]": 5677412,
+      "Department of State": 5677377,
+    };
+    const ALLIED_GROUPS = {
+      "[OİO] Foreign Affairs": 12491199,
+      "RA | Foreign Affairs": 5676327,
+      "|| Imperial Armada ||": 2654474,
+      "ROBLOX Infantry Corps": 254403,
+      "|BA| Foreign and Commonwealth Office": 4940841,
+      "Raider Dawn": 770504,
+    };
+
+    const usernameInput = document.getElementById('usernameInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const status = document.getElementById('status');
+    const resultsWrapper = document.getElementById('resultsWrapper');
+    const avatarImg = document.getElementById('avatarImg');
+    const displayName = document.getElementById('displayName');
+    const displayId = document.getElementById('displayId');
+    const displayCreated = document.getElementById('displayCreated');
+    const profileLink = document.getElementById('profileLink');
+    const primaryGroup = document.getElementById('primaryGroup');
+    const createdExact = document.getElementById('createdExact');
+    const alliedList = document.getElementById('alliedList');
+
+    function showStatus(txt, isError=false){
+      status.textContent = txt;
+      status.style.color = isError ? 'rgba(255,120,120,0.95)' : 'rgba(255,255,255,0.85)';
+    }
+    function fmtDateLocale(iso){
+      try{
+        const d = new Date(iso);
+        if (isNaN(d)) return "Unknown";
+        return d.toLocaleString(undefined, {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      }catch(e){return iso;}
+    }
+
+    function relativeSince(iso){
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      const now = new Date();
+      const s = Math.floor((now-d)/1000);
+      if (s < 60) return s+'s ago';
+      const m = Math.floor(s/60);
+      if (m < 60) return m+'m ago';
+      const h = Math.floor(m/60);
+      if (h < 24) return h+'h ago';
+      const days = Math.floor(h/24);
+      if (days < 365) return days+'d ago';
+      return Math.floor(days/365)+'y ago';
+    }
+
+    async function fetchJsonWithFallback(url, opts){
+      try{
+        const r = await fetch(url, opts);
+        if (r.ok) return await r.json();
+      }catch(e){}
+      const target = CORS_PROXY + encodeURIComponent(url);
+      const r2 = await fetch(target, opts);
+      if (!r2.ok) throw new Error('Network error: ' + r2.status);
+      return await r2.json();
+    }
+
+    async function lookup(username){
+      username = (username || '').trim();
+      if (!username){showStatus('Please enter a Roblox username.', true);return;}
+
+      showStatus('Looking up user...');
+      resultsWrapper.hidden = true;
+
+      try{
+        const lookupUrl = 'https://users.roblox.com/v1/usernames/users';
+        const lookupResp = await fetch(CORS_PROXY + encodeURIComponent(lookupUrl), {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({usernames:[username]})
+        });
+        if (!lookupResp.ok) throw new Error('User lookup failed ('+lookupResp.status+')');
+        const lookup = await lookupResp.json();
+        if (!lookup.data || lookup.data.length===0){showStatus('User not found.', true);return;}
+        const user = lookup.data[0];
+        const userId = user.id;
+        displayName.textContent = user.displayName || user.username || username;
+        displayId.textContent = 'ID: ' + userId;
+        profileLink.href = `https://www.roblox.com/users/${userId}/profile`;
+
+        const userInfo = await fetchJsonWithFallback(`https://users.roblox.com/v1/users/${userId}`);
+        const createdIso = userInfo.created || userInfo.createdTime || null;
+        if (createdIso){
+          createdExact.textContent = fmtDateLocale(createdIso);
+          createdExact.title = new Date(createdIso).toISOString();
+          displayCreated.textContent = relativeSince(createdIso);
+        } else {
+          createdExact.textContent = 'Unknown';
+          displayCreated.textContent = '—';
+        }
+
+        try{
+          const thumb = await fetchJsonWithFallback(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`);
+          const t = thumb?.data?.[0];
+          avatarImg.src = t?.imageUrl || `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150`;
+        }catch(e){
+          avatarImg.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150`;
+        }
+
+        showStatus('Fetching groups & roles...');
+        const groupsData = await fetchJsonWithFallback(`https://groups.roblox.com/v2/users/${userId}/groups/roles`);
+        const groups = groupsData?.data || [];
+
+        // primary group
+        const primary = groups.find(g => g.group.id === PRIMARY_GROUP_ID);
+        primaryGroup.textContent = primary ? (primary.group.name + ' — ' + primary.role.name) : 'Not in main group';
+
+        // Division groups
+        const divisionList = document.getElementById('divisionList');
+        divisionList.innerHTML = '';
+        const divisionFound = [];
+        for (const [name, gid] of Object.entries(DIVISION_GROUPS)) {
+          const match = groups.find(g => g.group.id === gid);
+          if (match) divisionFound.push(`${name} — ${match.role.name}`);
+        }
+        if (divisionFound.length === 0) {
+          divisionList.innerHTML = '<li>Not in division groups</li>';
+        } else {
+          divisionFound.forEach(d => {
+            const li = document.createElement('li');
+            li.textContent = d;
+            divisionList.appendChild(li);
+          });
+        }
+
+        // Allied groups
+        alliedList.innerHTML = '';
+        const alliedFound = [];
+        for (const [name, gid] of Object.entries(ALLIED_GROUPS)) {
+          const match = groups.find(g => g.group.id === gid);
+          if (match) alliedFound.push(`${name} — ${match.role.name}`);
+        }
+        if (alliedFound.length === 0) {
+          alliedList.innerHTML = '<li>Not in allied groups</li>';
+        } else {
+          alliedFound.forEach(a => {
+            const li = document.createElement('li');
+            li.textContent = a;
+            alliedList.appendChild(li);
+          });
+        }
+
+        showStatus('Lookup successful.');
+        resultsWrapper.hidden = false;
+      }catch(e){
+        console.error(e);
+        showStatus('Error: '+e.message,true);
+      }
+    }
+
+    searchBtn.addEventListener('click',()=>lookup(usernameInput.value));
+    usernameInput.addEventListener('keydown',e=>{if(e.key==='Enter')lookup(usernameInput.value);});
+  </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
