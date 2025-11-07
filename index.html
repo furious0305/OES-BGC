@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>OES BGC</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -20,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* Palette from logo */
     :root{
       --bg-dark: #1E1E1E;
       --primary-teal: #2A7B7B;
@@ -36,7 +24,6 @@
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);background:linear-gradient(180deg,var(--bg-dark),#121212 120%);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 10px; }
     ::-webkit-scrollbar-track { background: #1e1e1e; }
     ::-webkit-scrollbar-thumb {
@@ -48,7 +35,6 @@
     }
     * { scrollbar-width: thin; scrollbar-color: #2a7b7b #1e1e1e; }
 
-    /* Layout and components */
     .wrap{
       min-height:100%;
       display:flex;
@@ -241,7 +227,7 @@
   <div class="wrap">
     <div class="card" role="main" aria-labelledby="pageTitle">
       <header class="card-header">
-        <img id="logo" src="https://cdn.discordapp.com/attachments/1383042075645448204/1397093776341864498/State_Internal_Management_3.png?ex=690ce039&is=690b8eb9&hm=db1b669fa3b41b5f1e6579986b0e4b2a14456643b42ca847c407d026343e6468" alt="Office of Ethical Standards logo">
+        <img id="logo" src="https://media.discordapp.net/attachments/1383042075645448204/1397093776341864498/State_Internal_Management_3.png?ex=690e31b9&is=690ce039&hm=736f6d25c2c60e703f9005a8d91243da7ec9f9c1db9cc0aabba56c470ce5c67f&format=webp&quality=lossless&width=1700&height=1700&">
         <div class="title">
           <h1 id="pageTitle">Office of Ethical Standards</h1>
           <p>State Internal Management — Background Check Portal</p>
@@ -257,6 +243,20 @@
         </div>
 
         <div id="status" class="status-line">Enter a username and press Search.</div>
+
+        <!-- Inline Alert Box -->
+        <div id="alertBox" style="
+          display:none;
+          background:linear-gradient(180deg, rgba(255,90,90,0.15), rgba(100,0,0,0.25));
+          border:1px solid rgba(255,90,90,0.4);
+          color:#ff8a80;
+          font-weight:600;
+          text-align:center;
+          padding:10px 14px;
+          border-radius:10px;
+          margin-top:8px;
+          font-size:14px;
+        "></div>
 
         <div id="resultsWrapper" hidden>
           <div class="results">
@@ -293,6 +293,11 @@
                   <h4>Allied Groups</h4>
                   <ul id="alliedList"><li>Not in allied groups</li></ul>
                 </div>
+
+                <div class="panel" id="blacklistPanel" style="border:1px solid rgba(255,80,80,0.3);">
+                  <h4 style="color:#ff6961;">🚨 Blacklisted Groups</h4>
+                  <ul id="blacklistList"><li>No blacklisted groups detected</li></ul>
+                </div>
               </div>
             </div>
           </div>
@@ -328,6 +333,9 @@
       "|BA| Foreign and Commonwealth Office": 4940841,
       "Raider Dawn": 770504,
     };
+    const BLACKLISTED_GROUPS = {
+      "[AT] Armée de Terre": 4743425,
+    };
 
     const usernameInput = document.getElementById('usernameInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -341,11 +349,13 @@
     const primaryGroup = document.getElementById('primaryGroup');
     const createdExact = document.getElementById('createdExact');
     const alliedList = document.getElementById('alliedList');
+    const alertBox = document.getElementById('alertBox');
 
     function showStatus(txt, isError=false){
       status.textContent = txt;
       status.style.color = isError ? 'rgba(255,120,120,0.95)' : 'rgba(255,255,255,0.85)';
     }
+
     function fmtDateLocale(iso){
       try{
         const d = new Date(iso);
@@ -385,6 +395,7 @@
       if (!username){showStatus('Please enter a Roblox username.', true);return;}
 
       showStatus('Looking up user...');
+      alertBox.style.display = 'none';
       resultsWrapper.hidden = true;
 
       try{
@@ -409,76 +420,93 @@
           createdExact.textContent = fmtDateLocale(createdIso);
           createdExact.title = new Date(createdIso).toISOString();
           displayCreated.textContent = relativeSince(createdIso);
-        } else {
+        }else{
           createdExact.textContent = 'Unknown';
           displayCreated.textContent = '—';
         }
+// ✅ Avatar fetch with CORS fallback
+try {
+  const thumbUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
+  const thumbResp = await fetch(CORS_PROXY + encodeURIComponent(thumbUrl));
+  const thumbData = await thumbResp.json();
+  if (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) {
+    avatarImg.src = thumbData.data[0].imageUrl;
+  } else {
+    avatarImg.src = "https://tr.rbxcdn.com/0cd3c2eecae7d39cf79b6d476b7486d2/420/420/Image/Png";
+  }
+} catch (err) {
+  console.error("Avatar fetch failed:", err);
+  avatarImg.src = "https://tr.rbxcdn.com/0cd3c2eecae7d39cf79b6d476b7486d2/420/420/Image/Png";
+}
 
-        try{
-          const thumb = await fetchJsonWithFallback(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`);
-          const t = thumb?.data?.[0];
-          avatarImg.src = t?.imageUrl || `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150`;
-        }catch(e){
-          avatarImg.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150`;
-        }
 
-        showStatus('Fetching groups & roles...');
-        const groupsData = await fetchJsonWithFallback(`https://groups.roblox.com/v2/users/${userId}/groups/roles`);
-        const groups = groupsData?.data || [];
+        const groupsData = await fetchJsonWithFallback(`https://groups.roblox.com/v1/users/${userId}/groups/roles`);
 
-        // primary group
-        const primary = groups.find(g => g.group.id === PRIMARY_GROUP_ID);
-        primaryGroup.textContent = primary ? (primary.group.name + ' — ' + primary.role.name) : 'Not in main group';
+        // Primary group
+        const primary = groupsData.data.find(g => g.group.id === PRIMARY_GROUP_ID);
+        primaryGroup.textContent = primary ? `${primary.group.name} (${primary.role.name})` : 'Not in main group';
 
-        // Division groups
+        // Division
+        const divisionFound = Object.entries(DIVISION_GROUPS).filter(([name, id]) =>
+          groupsData.data.some(g => g.group.id === id)
+        );
         const divisionList = document.getElementById('divisionList');
-        divisionList.innerHTML = '';
-        const divisionFound = [];
-        for (const [name, gid] of Object.entries(DIVISION_GROUPS)) {
-          const match = groups.find(g => g.group.id === gid);
-          if (match) divisionFound.push(`${name} — ${match.role.name}`);
-        }
-        if (divisionFound.length === 0) {
-          divisionList.innerHTML = '<li>Not in division groups</li>';
-        } else {
-          divisionFound.forEach(d => {
-            const li = document.createElement('li');
-            li.textContent = d;
-            divisionList.appendChild(li);
+        if (divisionFound.length===0){
+          divisionList.innerHTML='<li>Not in division groups</li>';
+        }else{
+          divisionList.innerHTML='';
+          divisionFound.forEach(([name])=>{
+            const li=document.createElement('li');li.textContent=name;divisionList.appendChild(li);
           });
         }
 
-        // Allied groups
-        alliedList.innerHTML = '';
-        const alliedFound = [];
-        for (const [name, gid] of Object.entries(ALLIED_GROUPS)) {
-          const match = groups.find(g => g.group.id === gid);
-          if (match) alliedFound.push(`${name} — ${match.role.name}`);
-        }
-        if (alliedFound.length === 0) {
-          alliedList.innerHTML = '<li>Not in allied groups</li>';
-        } else {
-          alliedFound.forEach(a => {
-            const li = document.createElement('li');
-            li.textContent = a;
-            alliedList.appendChild(li);
+        // Allied
+        const alliedFound = Object.entries(ALLIED_GROUPS).filter(([name,id]) =>
+          groupsData.data.some(g => g.group.id === id)
+        );
+        if (alliedFound.length===0){
+          alliedList.innerHTML='<li>Not in allied groups</li>';
+        }else{
+          alliedList.innerHTML='';
+          alliedFound.forEach(([name])=>{
+            const li=document.createElement('li');li.textContent=name;alliedList.appendChild(li);
           });
         }
 
-        showStatus('Lookup successful.');
+        // Blacklist
+        const blacklistList = document.getElementById('blacklistList');
+        const blacklistedFound = Object.entries(BLACKLISTED_GROUPS).filter(([name,id]) =>
+          groupsData.data.some(g => g.group.id === id)
+        );
+
+        if (blacklistedFound.length === 0) {
+          blacklistList.innerHTML = '<li>No blacklisted groups detected</li>';
+          alertBox.style.display = 'none';
+        } else {
+          blacklistList.innerHTML = '';
+          blacklistedFound.forEach(([name]) => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            li.style.color = '#ff6961';
+            li.style.fontWeight = '600';
+            blacklistList.appendChild(li);
+          });
+          alertBox.textContent = '⚠️ ALERT: This user is in a blacklisted group!';
+          alertBox.style.display = 'block';
+          showStatus('⚠️ Blacklist detected! Proceed with caution.', true);
+        }
+
         resultsWrapper.hidden = false;
-      }catch(e){
-        console.error(e);
-        showStatus('Error: '+e.message,true);
+        showStatus('Lookup complete.');
+
+      }catch(err){
+        console.error(err);
+        showStatus('Error: '+err.message, true);
       }
     }
 
-    searchBtn.addEventListener('click',()=>lookup(usernameInput.value));
-    usernameInput.addEventListener('keydown',e=>{if(e.key==='Enter')lookup(usernameInput.value);});
+    searchBtn.addEventListener('click', ()=> lookup(usernameInput.value));
+    usernameInput.addEventListener('keypress', e=>{ if(e.key==='Enter') lookup(usernameInput.value); });
   </script>
 </body>
-</html>
-    
-  </body>
-  
 </html>
